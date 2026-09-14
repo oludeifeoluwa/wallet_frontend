@@ -184,12 +184,34 @@ function StaffLogin({save,notify}:{save:(u:User)=>void;notify:(s:string)=>void})
     const d=new FormData(e.currentTarget);
     try{
       await api(`/${role}/login`,{method:'POST',body:JSON.stringify({Email:d.get('Email'),Password:d.get('Password')})});
-    }catch{
-      notify('Administration demo workspace opened');
+      // fetch profile after successful login
+      const profile = await api<any>(`/${role}/profile`,{method:'GET'});
+      const user:User = {
+        firstname: profile.firstname,
+        lastname: profile.lastname,
+        email: profile.email,
+        walletNumber: profile.walletNumber,
+        schoolCode: profile.schoolCode,
+        role: role,
+        profilePicture: profile.profilePicture,
+        matricNumber: profile.matricNumber,
+        businessName: profile.businessName,
+        shopLocation: profile.shopLocation,
+        schoolName: profile.schoolName,
+        accountNumber: profile.accountNumber,
+        bankName: profile.bankName
+      };
+      save(user);
+      n('/app');
+    }catch(err){
+      if(err instanceof Error){
+        notify(err.message);
+      }else{
+        notify('Login failed');
+      }
+    }finally{
+      setBusy(false);
     }
-    await new Promise(r=>setTimeout(r,600));
-    save({firstname:'Jordan',lastname:'Adeyemi',email:String(d.get('Email')),walletNumber:'ADMIN-001',schoolCode:'UNILAG',role});
-    n('/app');
   };
 
   return (
