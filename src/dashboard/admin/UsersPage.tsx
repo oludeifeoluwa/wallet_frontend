@@ -3,10 +3,12 @@ import {
   UserPlus,
   Trash2,
   RefreshCw,
-  Mail,
-  Building,
-  ShieldAlert,
-  UserCheck,
+  Users,
+  ShieldCheck,
+  Building2,
+  CheckCircle2,
+  Clock,
+  Edit2,
 } from 'lucide-react';
 import { adminApi } from '../api/adminApi';
 import { schoolApi } from '../api/schoolApi';
@@ -17,13 +19,25 @@ import { Modal } from '../components/Modal';
 import { DetailDrawer } from '../components/DetailDrawer';
 import { ErrorState } from '../components/ErrorState';
 
+const COLORS = [
+  'bg-emerald-100 text-emerald-800',
+  'bg-blue-100 text-blue-800',
+  'bg-amber-100 text-amber-800',
+  'bg-purple-100 text-purple-800',
+  'bg-rose-100 text-rose-800',
+  'bg-cyan-100 text-cyan-800',
+  'bg-indigo-100 text-indigo-800',
+];
+function avatarColor(name: string) {
+  return COLORS[(name.charCodeAt(0) + (name.charCodeAt(1) || 0)) % COLORS.length];
+}
+
 export const UsersPage: React.FC = () => {
   const [users, setUsers] = useState<SchoolUserDto[]>([]);
   const [schools, setSchools] = useState<SchoolDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Create School Admin Modal State
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [formData, setFormData] = useState<CreateSchoolAdminDto>({
     firstname: '',
@@ -35,13 +49,11 @@ export const UsersPage: React.FC = () => {
   const [createLoading, setCreateLoading] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
 
-  // Delete Staff Modal State
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<SchoolUserDto | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
-  // Drawer
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<SchoolUserDto | null>(null);
 
@@ -109,9 +121,7 @@ export const UsersPage: React.FC = () => {
       await adminApi.deleteAdmin(userId);
       setDeleteModalOpen(false);
       setUserToDelete(null);
-      if (selectedUser?.id === userId) {
-        setDrawerOpen(false);
-      }
+      if (selectedUser?.id === userId) setDrawerOpen(false);
       await loadData();
     } catch (err: any) {
       setDeleteError(err?.message || 'Failed to delete user.');
@@ -120,57 +130,90 @@ export const UsersPage: React.FC = () => {
     }
   };
 
+  // Unique schools represented in the user list
+  const schoolsCovered = new Set(users.map((u) => u.schoolCode).filter(Boolean)).size;
+
   const columns: ColumnDef<SchoolUserDto>[] = [
     {
       key: 'name',
-      header: 'Staff Member',
+      header: 'ADMIN NAME',
       sortable: true,
+      render: (row) => {
+        const fullName = `${row.firstname || ''} ${row.lastname || ''}`.trim() || 'Unknown';
+        const initials = `${row.firstname?.charAt(0) || ''}${row.lastname?.charAt(0) || ''}`.toUpperCase() || 'U';
+        const color = avatarColor(fullName);
+        return (
+          <div className="flex items-center gap-3">
+            <div
+              className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs shrink-0 ${color}`}
+            >
+              {initials}
+            </div>
+            <div>
+              <p className="font-semibold text-slate-900 text-sm">{fullName}</p>
+              <p className="text-[11px] text-slate-400">{row.email}</p>
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      key: 'schoolCode',
+      header: 'ASSIGNED SCHOOL',
+      sortable: true,
+      render: (row) => {
+        const school = schools.find((s) => s.code === row.schoolCode);
+        return (
+          <div className="flex items-center gap-2">
+            <Building2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+            <div>
+              <p className="text-xs font-semibold text-slate-800">{school?.name || row.schoolCode || 'Global'}</p>
+              {school && <p className="text-[10px] text-slate-400 font-mono">{school.code}</p>}
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      key: 'createdAt',
+      header: 'DATE CREATED',
       render: (row) => (
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs shrink-0">
-            {row.firstname?.charAt(0) || row.lastname?.charAt(0) || 'U'}
-          </div>
-          <div>
-            <p className="font-bold text-slate-900">
-              {row.firstname} {row.lastname}
-            </p>
-            <p className="text-[11px] text-slate-400">{row.email}</p>
-          </div>
+        <span className="text-xs text-slate-500">{(row as any).createdAt || '—'}</span>
+      ),
+    },
+    {
+      key: 'lastLogin',
+      header: 'LAST LOGIN',
+      render: (row) => (
+        <div>
+          <p className="text-xs text-slate-700">{(row as any).lastLogin || 'Never'}</p>
+          <p className="text-[10px] text-slate-400">{(row as any).isOnline ? '• Online' : ''}</p>
         </div>
       ),
     },
     {
-      key: 'schoolCode',
-      header: 'School Code',
-      sortable: true,
-      render: (row) => (
-        <span className="font-mono text-xs font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-          {row.schoolCode || 'Global'}
-        </span>
-      ),
-    },
-    {
-      key: 'walletNumber',
-      header: 'Wallet / Account',
-      render: (row) => (
-        <span className="font-mono text-xs text-slate-600">
-          {row.walletNumber || '—'}
-        </span>
-      ),
-    },
-    {
       key: 'actions',
-      header: 'Actions',
+      header: 'ACTIONS',
       align: 'right',
       render: (row) => (
-        <div className="flex items-center justify-end" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
+          <button
+            onClick={() => {
+              setSelectedUser(row);
+              setDrawerOpen(true);
+            }}
+            className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+            title="View Details"
+          >
+            <Edit2 className="w-3.5 h-3.5" />
+          </button>
           <button
             onClick={() => {
               setUserToDelete(row);
               setDeleteError(null);
               setDeleteModalOpen(true);
             }}
-            className="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+            className="p-1.5 text-rose-400 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
             title="Revoke / Delete Staff"
           >
             <Trash2 className="w-3.5 h-3.5" />
@@ -182,16 +225,16 @@ export const UsersPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* Page Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold font-heading text-slate-900 tracking-tight">
-            Staff & Institution Admins
+            School Administrators
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            Provision and monitor authorized school administrative personnel
+            Manage institutional access and oversee administrative roles across the campus network.
           </p>
         </div>
-
         <div className="flex items-center gap-2">
           <button
             onClick={loadData}
@@ -206,11 +249,47 @@ export const UsersPage: React.FC = () => {
               setCreateError(null);
               setCreateModalOpen(true);
             }}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-[#102b29] bg-[#dfffbb] hover:bg-[#ebffd3] rounded-xl transition-colors shadow-2xs font-heading cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-[#1b5e52] hover:bg-[#144a3f] rounded-xl transition-colors shadow-xs font-heading cursor-pointer"
           >
             <UserPlus className="w-3.5 h-3.5" />
             <span>Create School Admin</span>
           </button>
+        </div>
+      </div>
+
+      {/* KPI Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-[11px] text-slate-500 font-semibold uppercase tracking-wide">Total Admins</p>
+            <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full">
+              {loading ? '...' : users.length > 0 ? '+0%' : '—'}
+            </span>
+          </div>
+          <p className="text-3xl font-extrabold text-slate-900">{loading ? '—' : users.length}</p>
+        </div>
+        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">
+          <div className="flex items-center gap-2 mb-2">
+            <Clock className="w-3.5 h-3.5 text-rose-500" />
+            <p className="text-[11px] text-slate-500 font-semibold uppercase tracking-wide">Active Today</p>
+          </div>
+          <p className="text-3xl font-extrabold text-slate-900">—</p>
+        </div>
+        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">
+          <div className="flex items-center gap-2 mb-2">
+            <Building2 className="w-3.5 h-3.5 text-slate-500" />
+            <p className="text-[11px] text-slate-500 font-semibold uppercase tracking-wide">Schools Covered</p>
+          </div>
+          <p className="text-3xl font-extrabold text-slate-900">{loading ? '—' : schoolsCovered}</p>
+        </div>
+        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">
+          <div className="flex items-center gap-2 mb-2">
+            <CheckCircle2 className="w-3.5 h-3.5 text-slate-500" />
+            <p className="text-[11px] text-slate-500 font-semibold uppercase tracking-wide">Verified Status</p>
+          </div>
+          <p className="text-3xl font-extrabold text-slate-900">
+            {loading || users.length === 0 ? '—' : '100%'}
+          </p>
         </div>
       </div>
 
@@ -223,19 +302,35 @@ export const UsersPage: React.FC = () => {
         />
       )}
 
-      <DataTable
-        columns={columns}
-        data={users}
-        loading={loading}
-        searchPlaceholder="Search staff by name, email, or school..."
-        searchKey={(u) => `${u.firstname} ${u.lastname} ${u.email} ${u.schoolCode}`}
-        emptyTitle="No Institutional Staff Found"
-        emptyDescription="Create your first school administrator using the button above."
-        onRowClick={(row) => {
-          setSelectedUser(row);
-          setDrawerOpen(true);
-        }}
-      />
+      {/* Table */}
+      <div className="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden">
+        <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+          <div>
+            <h3 className="text-sm font-bold text-slate-800">Administrator List</h3>
+            <span className="inline-flex items-center text-[11px] text-slate-500 bg-slate-100 rounded-full px-2 py-0.5 mt-0.5">
+              {loading ? '...' : users.length} Found
+            </span>
+          </div>
+        </div>
+        <DataTable
+          columns={columns}
+          data={users}
+          loading={loading}
+          searchPlaceholder="Search staff by name, email, or school..."
+          searchKey={(u) => `${u.firstname} ${u.lastname} ${u.email} ${u.schoolCode}`}
+          emptyTitle="No Institutional Staff Found"
+          emptyDescription="Create your first school administrator using the button above."
+          onRowClick={(row) => {
+            setSelectedUser(row);
+            setDrawerOpen(true);
+          }}
+        />
+        {!loading && (
+          <div className="px-5 py-3 border-t border-slate-100 text-xs text-slate-400">
+            Showing 1–{users.length} of {users.length} results
+          </div>
+        )}
+      </div>
 
       {/* Create School Admin Modal */}
       <Modal
@@ -330,6 +425,20 @@ export const UsersPage: React.FC = () => {
         onClose={() => setDrawerOpen(false)}
         title={`${selectedUser?.firstname || ''} ${selectedUser?.lastname || 'Staff Member'}`}
         subtitle={`Campus: ${selectedUser?.schoolCode || 'Global'}`}
+        footerActions={
+          selectedUser && (
+            <button
+              onClick={() => {
+                setUserToDelete(selectedUser);
+                setDeleteError(null);
+                setDeleteModalOpen(true);
+              }}
+              className="px-3 py-1.5 text-xs font-semibold text-white bg-rose-600 hover:bg-rose-700 rounded-xl cursor-pointer"
+            >
+              Revoke Access
+            </button>
+          )
+        }
       >
         {selectedUser && (
           <div className="space-y-4 text-xs">

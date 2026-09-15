@@ -69,15 +69,21 @@ export const AdminDashboard: React.FC = () => {
     { label: 'Failed', value: metrics?.failedTransactions ?? (recentTx.filter(t => t.status === 'Failed').length || 0), color: '#f43f5e' },
   ];
 
-  const volumeChartData = [
-    { label: 'Mon', value: 34000 },
-    { label: 'Tue', value: 68000 },
-    { label: 'Wed', value: 52000 },
-    { label: 'Thu', value: 91000 },
-    { label: 'Fri', value: 124000 },
-    { label: 'Sat', value: 43000 },
-    { label: 'Sun', value: 31000 },
-  ];
+  // Use real daily/weekly breakdown from analytics if available, otherwise empty
+  const volumeChartData: { label: string; value: number }[] = (() => {
+    const raw = (metrics as any)?.dailyVolume || (metrics as any)?.weeklyVolume || (metrics as any)?.volumeByDay;
+    if (Array.isArray(raw) && raw.length > 0) {
+      return raw.map((item: any) => ({
+        label: item.label || item.day || item.date || '',
+        value: Number(item.value || item.amount || item.volume || 0),
+      }));
+    }
+    // If backend returns total volume only, show it as a single bar
+    if (totalVolumeAmount > 0) {
+      return [{ label: 'Volume', value: totalVolumeAmount }];
+    }
+    return [];
+  })();
 
   const columns: ColumnDef<TransactionDto>[] = [
     {

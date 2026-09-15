@@ -155,16 +155,16 @@ export const SchoolLogin: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-2 py-3 px-4 bg-[#102b29] hover:bg-[#163b38] text-white font-bold text-sm rounded-xl shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+              className="w-full mt-2 py-3.5 px-6 bg-[#102b29] hover:bg-[#163b38] text-white font-bold text-sm rounded-xl shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
             >
               {loading ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  <span>Verifying Institutional Access...</span>
+                  <span className="px-2">Verifying Institutional Access...</span>
                 </>
               ) : (
                 <>
-                  <span>Sign In to School Portal</span>
+                  <span className="px-4">Sign In to School Portal</span>
                   <ArrowRight className="w-4 h-4" />
                 </>
               )}

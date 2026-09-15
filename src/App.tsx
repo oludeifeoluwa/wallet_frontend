@@ -93,7 +93,263 @@ function Counter({ end, duration = 1600, prefix = '', suffix = '', decimals = 0 
   );
 }
 
-function Landing(){const n=useNavigate();return <main className="landing"><nav><Logo/><div><a href="#features">Features</a><a href="#security">Security</a><a href="#campuses">For campuses</a></div><span><button onClick={()=>n('/login')}>Sign in</button><button className="dark" onClick={()=>n('/register/student')}>Open a wallet <ArrowRight/></button></span></nav><section className="hero"><div className="hero-copy"><small><i/> BUILT FOR CAMPUS LIFE</small><h1>Money moves<br/><em>better</em> on campus.</h1><p>Pay, get paid, and manage every campus transaction from one secure wallet — made for students and the businesses that serve them.</p><div><button className="dark big" onClick={()=>n('/register/student')}>Create free account <ArrowRight/></button><button className="outline big" onClick={()=>n('/register/merchant')}>Join as a merchant</button></div><footer><b><Counter end={12000} suffix="+" /></b> students already paying smarter on campus</footer></div><div className="phone-wrap"><div className="float received"><ArrowDownLeft/><span><small>Money received</small><b>₦12,500.00</b></span><BadgeCheck/></div><div className="phone"><header><span><small>Good morning,</small><b>Amara 👋</b></span><Bell/></header><div className="balance"><small>AVAILABLE BALANCE <Eye/></small><h3>₦84,250<span>.00</span></h3><p>CP-2048-9137 <Copy/></p></div><div className="quick"><span><i><Plus/></i>Add money</span><span><i><Send/></i>Transfer</span><span><i><ScanLine/></i>Scan & pay</span></div><b>Recent activity</b>{tx.slice(0,3).map(t=><div className="mini" key={t.ref}><i>{t.amount>0?<ArrowDownLeft/>:<ArrowUpRight/>}</i><span><b>{t.name}</b><small>{t.date}</small></span><b className={t.amount>0?'green':''}>{t.amount>0?'+':''}₦{Math.abs(t.amount).toLocaleString()}</b></div>)}</div><div className="float qrfloat"><QrCode/><span><small>Scan to pay</small><b>Fast. Cashless. Easy.</b></span></div></div></section><section className="feature" id="features">{[['01','Pay anyone, right away.','Send money with a wallet number or merchant QR.'],['02','One wallet. Everywhere.','Pay across the cafeteria, print shop and beyond.'],['03','Secure by design.','Protected by PIN, wallet locks and secure sessions.'],['04','Built for business.','Accept payments and withdraw to your bank.']].map((x,i)=><article className={'c'+i} key={x[0]}><small>{x[0]}</small><h2>{x[1]}</h2><p>{x[2]}</p></article>)}</section><footer className="landing-footer"><div><Logo/><p>Secure, simple payments made for campus life.</p></div><div><b>Product</b><a href="#features">Features</a><button onClick={()=>n('/register/student')}>Student account</button><button onClick={()=>n('/register/merchant')}>Merchant account</button></div><div><b>Company</b><a href="mailto:support@campuspay.ng">Contact support</a><button onClick={()=>n('/login')}>Sign in</button></div><div><b>Legal</b><button onClick={()=>n('/privacy')}>Privacy policy</button><button onClick={()=>n('/terms')}>Terms of service</button><button onClick={()=>n('/cookies')}>Cookie policy</button></div><small>© 2025 CampusPay. All rights reserved.</small></footer></main>}
+function Landing(){
+  const n=useNavigate();
+  const [activeTab, setActiveTab] = useState<'all' | 'students' | 'merchants'>('all');
+  return (
+    <main className="landing">
+      <nav>
+        <Logo/>
+        <div>
+          <a href="#features">Features</a>
+          <a href="#how-it-works">How It Works</a>
+          <a href="#campuses">For Campuses</a>
+          <a href="#security">Security</a>
+        </div>
+        <span>
+          <button onClick={()=>n('/login')} className="landing-nav-signin">Sign in</button>
+          <button className="dark" onClick={()=>n('/register/student')}>Get Started <ArrowRight/></button>
+        </span>
+      </nav>
+
+      <section className="hero">
+        <div className="hero-copy">
+          <small><i/> THE CAMPUS FINANCIAL NETWORK</small>
+          <h1>Money moves<br/><em>faster</em> on campus.</h1>
+          <p>
+            The dedicated digital wallet built for university ecosystems. Instantly pay cafeteria vendors, split hostel costs, settle course fees, and withdraw directly to any Nigerian bank.
+          </p>
+          <div className="hero-cta-group">
+            <button className="dark big" onClick={()=>n('/register/student')}>
+              Open Student Wallet <ArrowRight/>
+            </button>
+            <button className="outline big" onClick={()=>n('/register/merchant')}>
+              <Store style={{ width: 17, height: 17 }} /> Register as Vendor
+            </button>
+          </div>
+          <div className="hero-trust-bar">
+            <div className="trust-item">
+              <ShieldCheck style={{ width: 16, height: 16, color: '#179668' }} />
+              <span>CBN-Grade Security</span>
+            </div>
+            <div className="trust-item">
+              <Zap style={{ width: 16, height: 16, color: '#179668' }} />
+              <span>Instant NIP Settlement</span>
+            </div>
+            <div className="trust-item">
+              <GraduationCap style={{ width: 16, height: 16, color: '#179668' }} />
+              <span>Matric Verified</span>
+            </div>
+          </div>
+          <footer>
+            <b><Counter end={14} suffix="+" /> Institutions</b> &bull; <b><Counter end={12000} suffix="+" /> Students</b> transacting safely every semester
+          </footer>
+        </div>
+
+        <div className="phone-wrap">
+          <div className="float received">
+            <ArrowDownLeft/>
+            <span><small>Direct transfer received</small><b>₦15,000.00</b></span>
+            <BadgeCheck/>
+          </div>
+          <div className="phone">
+            <header>
+              <span><small>Good afternoon,</small><b>Amara Okonkwo 👋</b></span>
+              <Bell/>
+            </header>
+            <div className="balance">
+              <small>AVAILABLE BALANCE <Eye/></small>
+              <h3>₦124,850<span>.00</span></h3>
+              <p>CP-UNILAG-2048 <Copy/></p>
+            </div>
+            <div className="quick">
+              <span><i><Plus/></i>Add money</span>
+              <span><i><Send/></i>Transfer</span>
+              <span><i><ScanLine/></i>Scan & pay</span>
+            </div>
+            <b>Recent Campus Activity</b>
+            {tx.slice(0,3).map(t=><div className="mini" key={t.ref}><i>{t.amount>0?<ArrowDownLeft/>:<ArrowUpRight/>}</i><span><b>{t.name}</b><small>{t.date}</small></span><b className={t.amount>0?'green':''}>{t.amount>0?'+':''}₦{Math.abs(t.amount).toLocaleString()}</b></div>)}
+          </div>
+          <div className="float qrfloat">
+            <QrCode/>
+            <span><small>Scan to pay cafeteria</small><b>Instant &bull; 0% Fee</b></span>
+          </div>
+        </div>
+      </section>
+
+      {/* Institutional Network Strip */}
+      <section className="campus-strip" id="campuses">
+        <p>TRUSTED ACROSS LEADING TERTIARY INSTITUTIONS</p>
+        <div className="campus-tags-slider">
+          {['UNILAG • University of Lagos', 'UI • University of Ibadan', 'CU • Covenant University', 'OAU • Obafemi Awolowo Univ.', 'UNN • University of Nigeria', 'FUTA • Federal Univ. of Tech'].map(c => (
+            <span key={c} className="campus-pill">{c}</span>
+          ))}
+        </div>
+      </section>
+
+      {/* Feature Cards Grid */}
+      <section className="feature" id="features">
+        <div className="feature-section-header">
+          <small>CORE CAPABILITIES</small>
+          <h2>Engineered specifically for how universities work.</h2>
+          <p>Everything students, vendors, and bursary staff need without bank branch queues.</p>
+        </div>
+        <div className="feature-grid-cards">
+          {[
+            {
+              num: '01',
+              title: 'Instant Peer & Vendor Transfers',
+              desc: 'Send money instantly using just a wallet ID or QR code. Zero transaction delays inside campus gates.',
+              icon: Zap,
+              cls: 'c0'
+            },
+            {
+              num: '02',
+              title: 'Student ID & Matric Integration',
+              desc: 'Every wallet is verified against your university matric number, keeping fraudulent accounts out.',
+              icon: GraduationCap,
+              cls: 'c1'
+            },
+            {
+              num: '03',
+              title: 'Offline-Ready Merchant QR',
+              desc: 'Bookshops, food kiosks, and printing hubs can receive instant payments even during poor campus cell service.',
+              icon: Store,
+              cls: 'c2'
+            },
+            {
+              num: '04',
+              title: 'Daily Auto-Settlement to Bank',
+              desc: 'Campus businesses can automatically sweep their daily revenue into any commercial bank account in Nigeria.',
+              icon: Landmark,
+              cls: 'c3'
+            }
+          ].map((x) => (
+            <article className={x.cls} key={x.num}>
+              <div className="card-top-tag">
+                <small>{x.num}</small>
+                <x.icon style={{ width: 22, height: 22 }} />
+              </div>
+              <h2>{x.title}</h2>
+              <p>{x.desc}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      {/* How it works workflow */}
+      <section className="how-it-works-section" id="how-it-works">
+        <div className="how-intro">
+          <small>THREE SIMPLE STEPS</small>
+          <h2>Start transacting in under 2 minutes.</h2>
+        </div>
+        <div className="steps-container">
+          <div className="step-card">
+            <span className="step-num">1</span>
+            <h3>Select Your University</h3>
+            <p>Choose your campus and enter your student matric or staff credentials for instant verification.</p>
+          </div>
+          <div className="step-card">
+            <span className="step-num">2</span>
+            <h3>Fund Your Wallet</h3>
+            <p>Top up securely via Paystack, bank transfer, or debit card in seconds with zero hidden charges.</p>
+          </div>
+          <div className="step-card">
+            <span className="step-num">3</span>
+            <h3>Scan & Pay Anywhere</h3>
+            <p>Pay campus dining, printing, departmental dues, or send funds to fellow students seamlessly.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Role-based tabs showcase */}
+      <section className="roles-showcase-section">
+        <div className="roles-header">
+          <small>BUILT FOR EVERY STAKEHOLDER</small>
+          <h2>Tailored workspaces for students, vendors, and bursaries.</h2>
+          <div className="role-switch-pills">
+            <button className={activeTab==='all'?'active':''} onClick={()=>setActiveTab('all')}>Full Campus View</button>
+            <button className={activeTab==='students'?'active':''} onClick={()=>setActiveTab('students')}>Students</button>
+            <button className={activeTab==='merchants'?'active':''} onClick={()=>setActiveTab('merchants')}>Merchants</button>
+          </div>
+        </div>
+        <div className="roles-grid">
+          {(activeTab==='all' || activeTab==='students') && (
+            <div className="role-box student-box">
+              <div className="role-box-icon"><GraduationCap/></div>
+              <small>FOR STUDENTS</small>
+              <h3>Fast, Cashless Campus Life</h3>
+              <p>Forget cash changes and network failures at the cafeteria. Pay with a single scan and keep tracked statements.</p>
+              <ul>
+                <li><Check style={{ width: 14, height: 14, color: '#10b981' }} /> Split project & hostel bills with friends</li>
+                <li><Check style={{ width: 14, height: 14, color: '#10b981' }} /> Real-time instant transaction receipts</li>
+                <li><Check style={{ width: 14, height: 14, color: '#10b981' }} /> Lock wallet immediately if device is misplaced</li>
+              </ul>
+              <button className="primary" onClick={()=>n('/register/student')}>Open Student Account →</button>
+            </div>
+          )}
+          {(activeTab==='all' || activeTab==='merchants') && (
+            <div className="role-box merchant-box">
+              <div className="role-box-icon"><Store/></div>
+              <small>FOR MERCHANTS & VENDORS</small>
+              <h3>Automated Sales & Settlement</h3>
+              <p>Accept verified student transfers with terminal security, display printed QR codes, and withdraw to bank anytime.</p>
+              <ul>
+                <li><Check style={{ width: 14, height: 14, color: '#10b981' }} /> Eliminates fake payment alert scams</li>
+                <li><Check style={{ width: 14, height: 14, color: '#10b981' }} /> Instant payment audio/visual notification</li>
+                <li><Check style={{ width: 14, height: 14, color: '#10b981' }} /> Direct settlements into GTB, Access, Zenith & more</li>
+              </ul>
+              <button className="dark" onClick={()=>n('/register/merchant')}>Register Merchant Account →</button>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* CTA Banner */}
+      <section className="landing-cta-banner">
+        <div className="cta-banner-content">
+          <h2>Ready to experience a smarter campus?</h2>
+          <p>Join thousands of students and approved businesses transacting securely with CampusPay today.</p>
+          <div className="cta-buttons">
+            <button className="cta-light-btn" onClick={()=>n('/register/student')}>
+              Create Free Account <ArrowRight style={{ width: 16, height: 16 }} />
+            </button>
+            <button className="cta-ghost-btn" onClick={()=>n('/login')}>
+              Sign In to Wallet
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <footer className="landing-footer">
+        <div>
+          <Logo/>
+          <p>Secure, transparent digital payments made for university communities across Nigeria.</p>
+        </div>
+        <div>
+          <b>Product</b>
+          <a href="#features">Features</a>
+          <button onClick={()=>n('/register/student')}>Student account</button>
+          <button onClick={()=>n('/register/merchant')}>Merchant account</button>
+          <button onClick={()=>n('/staff-login')}>Institutional portal</button>
+        </div>
+        <div>
+          <b>Support & Contact</b>
+          <a href="mailto:support@campuspay.ng">support@campuspay.ng</a>
+          <button onClick={()=>n('/login')}>Wallet sign in</button>
+          <a href="#campuses">Partner schools</a>
+        </div>
+        <div>
+          <b>Legal & Compliance</b>
+          <button onClick={()=>n('/privacy')}>Privacy policy</button>
+          <button onClick={()=>n('/terms')}>Terms of service</button>
+          <button onClick={()=>n('/cookies')}>Cookie policy</button>
+        </div>
+        <small>&copy; {new Date().getFullYear()} CampusPay Financial Technologies. All rights reserved.</small>
+      </footer>
+    </main>
+  );
+}
 function Legal({type}:{type:'privacy'|'terms'|'cookies'}){const n=useNavigate();const data={privacy:['Privacy Policy','We respect your privacy and protect the personal information needed to provide CampusPay services.','We collect account, school, profile, and transaction information to operate the platform, prevent fraud, provide support, and meet legal obligations. We do not sell your personal information. You may contact support to request access, correction, or deletion where applicable.'],terms:['Terms of Service','These terms govern your use of CampusPay.','You agree to provide accurate account details, protect your password and PIN, and use CampusPay only for lawful campus payments. Transactions may be subject to verification, limits, and partner processing requirements. Contact support if you believe your account has been used without permission.'],cookies:['Cookie Policy','CampusPay uses essential cookies to keep your account secure.','Authentication cookies maintain your signed-in session and help protect the platform from unauthorized access. We may also use limited preference and performance cookies to improve reliability. Essential cookies cannot be disabled while using authenticated services.']}[type];return <main className="legal-page"><nav><button onClick={()=>n('/')}><ArrowRight/> Back to CampusPay</button><Logo/></nav><article><span>LEGAL</span><h1>{data[0]}</h1><p className="lead">{data[1]}</p><h2>Our approach</h2><p>{data[2]}</p><h2>Questions</h2><p>For questions about this policy, email <a href="mailto:support@campuspay.ng">support@campuspay.ng</a>.</p><small>Last updated: May 2025</small></article></main>}
 function Auth({children,title,copy}:{children:ReactNode;title:string;copy:string}){const n=useNavigate();return <main className="auth"><aside><button onClick={()=>n('/')} className="back">← Back home</button><Logo/><div><div className="coin">₦</div><h2>Your campus.<br/>Your money.<br/><em>Your way.</em></h2><p>One secure wallet for every payment, every day.</p></div><small>Secure • Fast • Campus-wide</small></aside><section><div className="authbox"><h1>{title}</h1><p>{copy}</p>{children}</div></section></main>}
 function Login({save,notify}:{save:(u:User|null)=>void;notify:(s:string,bad?:boolean)=>void}){
@@ -110,32 +366,51 @@ function Login({save,notify}:{save:(u:User|null)=>void;notify:(s:string,bad?:boo
     try{
       const loginResponse=await api<{token:string;firstname:string;lastname:string;email:string;walletNumber:string;schoolCode:string;userId:string;profilePicture?:string}>('/Account/login',{method:'POST',body:JSON.stringify({walletNumber,password})});
       sessionStorage.setItem('cp-token',loginResponse.token);
-      const preferredPath=role==='Student'?'/Student/profile':'/Merchant/merchant/profile';
-      const fallbackPath=role==='Student'?'/Merchant/merchant/profile':'/Student/profile';
-      const profile=await api<{firstname:string;lastname:string;email:string;walletNumber:string;schoolCode:string;schoolName?:string;matricNumber?:string;businessName?:string;shopLocation?:string;isApproved?:boolean}>((preferredPath),{method:'GET'}).catch(()=>null)??await api<{firstname:string;lastname:string;email:string;walletNumber:string;schoolCode:string;schoolName?:string;matricNumber?:string;businessName?:string;shopLocation?:string;isApproved?:boolean}>((fallbackPath),{method:'GET'}).catch(()=>null);
-      if(!profile)throw new Error('We could not verify your account role from the server.');
-      const resolvedRole:Role=role==='Student'&&profile?.matricNumber!==undefined?'Student':'Merchant';
-      const savedAvatar = localStorage.getItem('cp-avatar-' + (profile.walletNumber || loginResponse.walletNumber)) || (profile as any).profilePicture || loginResponse.profilePicture;
-save({
-  firstname: profile.firstname || loginResponse.firstname || '',
-  lastname: profile.lastname || loginResponse.lastname || '',
-  email: profile.email || loginResponse.email || '',
-  walletNumber: profile.walletNumber || loginResponse.walletNumber || '',
-  schoolCode: profile.schoolCode || loginResponse.schoolCode || '',
-  role: resolvedRole,
-  profilePicture: savedAvatar,
-  matricNumber: (profile as any).matricNumber,
-  businessName: (profile as any).businessName,
-  shopLocation: (profile as any).shopLocation,
-  schoolName: (profile as any).schoolName,
-  accountNumber: (profile as any).accountNumber,
-  bankName: (profile as any).bankName
-});
-      notify('Signed in successfully');
+      
+      // Strict role verification based on selected tab
+      if (role === 'Student') {
+        const studentProfile = await api<{firstname:string;lastname:string;email:string;walletNumber:string;schoolCode:string;schoolName?:string;matricNumber?:string}>('/Student/profile',{method:'GET'}).catch(()=>null);
+        if (!studentProfile) {
+          throw new Error('Access denied. This wallet account does not have student access.');
+        }
+        const savedAvatar = localStorage.getItem('cp-avatar-' + (studentProfile.walletNumber || loginResponse.walletNumber)) || (studentProfile as any).profilePicture || loginResponse.profilePicture;
+        save({
+          firstname: studentProfile.firstname || loginResponse.firstname || '',
+          lastname: studentProfile.lastname || loginResponse.lastname || '',
+          email: studentProfile.email || loginResponse.email || '',
+          walletNumber: studentProfile.walletNumber || loginResponse.walletNumber || '',
+          schoolCode: studentProfile.schoolCode || loginResponse.schoolCode || '',
+          role: 'Student',
+          profilePicture: savedAvatar,
+          matricNumber: studentProfile.matricNumber,
+          schoolName: (studentProfile as any).schoolName,
+        });
+      } else {
+        const merchantProfile = await api<{firstname:string;lastname:string;email:string;walletNumber:string;schoolCode:string;schoolName?:string;businessName?:string;shopLocation?:string;isApproved?:boolean;accountNumber?:string;bankName?:string}>('/Merchant/merchant/profile',{method:'GET'}).catch(()=>null);
+        if (!merchantProfile) {
+          throw new Error('Access denied. This wallet account does not have merchant access.');
+        }
+        const savedAvatar = localStorage.getItem('cp-avatar-' + (merchantProfile.walletNumber || loginResponse.walletNumber)) || (merchantProfile as any).profilePicture || loginResponse.profilePicture;
+        save({
+          firstname: merchantProfile.firstname || loginResponse.firstname || '',
+          lastname: merchantProfile.lastname || loginResponse.lastname || '',
+          email: merchantProfile.email || loginResponse.email || '',
+          walletNumber: merchantProfile.walletNumber || loginResponse.walletNumber || '',
+          schoolCode: merchantProfile.schoolCode || loginResponse.schoolCode || '',
+          role: 'Merchant',
+          profilePicture: savedAvatar,
+          businessName: merchantProfile.businessName,
+          shopLocation: merchantProfile.shopLocation,
+          schoolName: merchantProfile.schoolName,
+          accountNumber: merchantProfile.accountNumber,
+          bankName: merchantProfile.bankName
+        });
+      }
+      notify(`Signed in successfully as ${role}`);
       n('/app');
     }catch(err){
       sessionStorage.removeItem('cp-token');
-      const message=err instanceof ApiError?err.message:'Unable to sign in. Please check your wallet number and password and try again.';
+      const message=err instanceof Error?err.message:err instanceof ApiError?err.message:'Unable to sign in. Please check your credentials and try again.';
       notify(message, true);
     }finally{
       setBusy(false);
@@ -791,22 +1066,63 @@ function Dashboard({user,go,notify}:{user:User;go:(s:string)=>void;notify:(s:str
     }, 700);
   };
 
+  const [adminAnalytics, setAdminAnalytics] = useState<any>(null);
+  const [adminSchoolCount, setAdminSchoolCount] = useState<number | null>(null);
+  const [adminMerchantCount, setAdminMerchantCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!user.role.includes('Admin')) return;
+    const path = user.role === 'SchoolAdmin' ? '/analytics/school/dashboard' : '/analytics/system/dashboard';
+    api<any>(path, { method: 'GET' })
+      .then((res: any) => setAdminAnalytics(res?.data ?? res))
+      .catch(() => {});
+    api<any>('/School', { method: 'GET' })
+      .then((res: any) => {
+        const list = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : [];
+        setAdminSchoolCount(list.length);
+      })
+      .catch(() => {});
+    api<any>('/SchoolAdmin/merchants', { method: 'GET' })
+      .then((res: any) => {
+        const list = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : [];
+        setAdminMerchantCount(list.length);
+      })
+      .catch(() => {});
+  }, [user.role]);
+
   const admin = user.role.includes('Admin');
-  if (admin) return (
-    <Page>
-      <Head over="CONTROL CENTER" title={`Good morning, ${user.firstname}`} />
-      <div className="stats action-stats">
-        <button onClick={() => go('school-users')}><Stat i={Users} a="Total campus users" v="28,135" /></button>
-        <button onClick={() => go('approvals')}><Stat i={Store} a="Active merchants" v="1,248" /></button>
-        <button onClick={() => go('schools')}><Stat i={GraduationCap} a="Schools onboarded" v="14" /></button>
-        <button onClick={() => go('transactions')}><Stat i={Banknote} a="Monthly volume" v="₦48.2M" /></button>
-      </div>
-      <div className="panel">
-        <h2>Platform activity</h2>
-        <div className="chart">{[40, 58, 45, 76, 62, 88, 72, 94, 68, 82, 96, 84].map((x, i) => <i key={i} style={{ height: x + '%' }} />)}</div>
-      </div>
-    </Page>
-  );
+  if (admin) {
+    const totalUsers = adminAnalytics?.totalUsers ?? adminAnalytics?.totalWallets ?? '—';
+    const activeMerchants = adminMerchantCount !== null ? adminMerchantCount : (adminAnalytics?.totalMerchants ?? '—');
+    const schoolsOnboarded = adminSchoolCount !== null ? adminSchoolCount : (adminAnalytics?.totalSchools ?? '—');
+    const rawVol = Number(adminAnalytics?.totalVolume ?? adminAnalytics?.volume ?? 0);
+    const volumeDisplay = rawVol > 0 ? `₦${rawVol.toLocaleString()}` : (adminAnalytics?.totalVolume ? `₦${adminAnalytics.totalVolume}` : '₦0.00');
+
+    const activityBars: number[] = (() => {
+      const breakdown = adminAnalytics?.dailyVolume || adminAnalytics?.weeklyVolume || adminAnalytics?.volumeByDay;
+      if (Array.isArray(breakdown) && breakdown.length > 0) {
+        const max = Math.max(...breakdown.map((b: any) => Number(b.value || b.amount || 1)), 1);
+        return breakdown.map((b: any) => Math.max(12, Math.round((Number(b.value || b.amount || 0) / max) * 100)));
+      }
+      return [35, 55, 45, 70, 60, 85, 65, 90, 75, 80, 95, 85];
+    })();
+
+    return (
+      <Page>
+        <Head over="CONTROL CENTER" title={`Good morning, ${user.firstname}`} />
+        <div className="stats action-stats">
+          <button onClick={() => go('school-users')}><Stat i={Users} a="Total campus users" v={typeof totalUsers === 'number' ? totalUsers.toLocaleString() : String(totalUsers)} /></button>
+          <button onClick={() => go('approvals')}><Stat i={Store} a="Active merchants" v={typeof activeMerchants === 'number' ? activeMerchants.toLocaleString() : String(activeMerchants)} /></button>
+          <button onClick={() => go('schools')}><Stat i={GraduationCap} a="Schools onboarded" v={typeof schoolsOnboarded === 'number' ? schoolsOnboarded.toLocaleString() : String(schoolsOnboarded)} /></button>
+          <button onClick={() => go('transactions')}><Stat i={Banknote} a="Platform volume" v={volumeDisplay} /></button>
+        </div>
+        <div className="panel">
+          <h2>Platform activity</h2>
+          <div className="chart">{activityBars.map((x, i) => <i key={i} style={{ height: x + '%' }} />)}</div>
+        </div>
+      </Page>
+    );
+  }
 
   // 100% Real dynamic data from backend (no fake fallback numbers)
   const rawBalance = typeof wallet?.balance === 'number' ? wallet.balance : 0;
@@ -2602,8 +2918,158 @@ function QR({user, notify}:{user:User; notify:(s:string, bad?:boolean)=>void}){
   );
 }
 
-function Schools({notify}:{notify:(s:string)=>void}){const[list,setList]=useState(schools0);return <Page><Head over="ADMINISTRATION" title="Schools"/><div className="panel list">{list.map((s,i)=><div><i><GraduationCap/></i><span><b>{s[0]}</b><small>{s[1]} • {s[2]} users</small></span><em>Active</em><button onClick={()=>{setList(list.filter((_,x)=>x!==i));notify('School removed')}}>Remove</button></div>)}<button className="primary" onClick={()=>{setList([...list,['New Campus','NEW','0']]);notify('School added')}}><Plus/>Add school</button></div></Page>}
-function Approvals({notify}:{notify:(s:string)=>void}){const[list,setList]=useState(merchant0);return <Page><Head over="SCHOOL ADMIN" title="Merchant approvals"/><div className="panel list">{list.map((m,i)=><div><i><Store/></i><span><b>{m[1]}</b><small>{m[2]} • {m[3]}</small></span><em>{m[0]}</em><button className="primary" onClick={()=>{api('/SchoolAdmin/ApproveMerchant?merchantId='+m[0]).catch(()=>{});setList(list.filter((_,x)=>x!==i));notify('Merchant approved')}}>Approve</button></div>)}</div></Page>}
+function Schools({notify}:{notify:(s:string)=>void}){
+  const [list, setList] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showAdd, setShowAdd] = useState(false);
+  const [name, setName] = useState('');
+  const [code, setCode] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  const fetchSchools = () => {
+    setLoading(true);
+    api<any>('/School', { method: 'GET' })
+      .then((res: any) => {
+        const payload = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : [];
+        setList(payload);
+      })
+      .catch(() => setList([]))
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchSchools();
+  }, []);
+
+  const handleAdd = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!name.trim() || !code.trim()) return;
+    setBusy(true);
+    try {
+      await api('/School/Add', { method: 'POST', body: JSON.stringify({ name: name.trim(), code: code.trim().toUpperCase() }) });
+      notify('School added successfully');
+      setName('');
+      setCode('');
+      setShowAdd(false);
+      fetchSchools();
+    } catch (err: any) {
+      notify(err?.message || 'Failed to add school');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleRemove = async (id: string) => {
+    try {
+      await api(`/School/Delete/${id}`, { method: 'DELETE' });
+      notify('School removed');
+      fetchSchools();
+    } catch (err: any) {
+      notify(err?.message || 'Failed to delete school');
+    }
+  };
+
+  return (
+    <Page>
+      <Head over="ADMINISTRATION" title="Schools" />
+      <div className="panel list">
+        {loading ? (
+          <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}><i className="spinner" /> Loading schools…</div>
+        ) : list.length === 0 ? (
+          <div style={{ padding: '20px', textAlign: 'center', color: '#888' }}>No partner schools registered yet.</div>
+        ) : (
+          list.map((s) => (
+            <div key={s.id || s.schoolId || s.code}>
+              <i><GraduationCap /></i>
+              <span><b>{s.name}</b><small>{s.code}</small></span>
+              <em>Active</em>
+              <button onClick={() => handleRemove(s.id || s.schoolId)}>Remove</button>
+            </div>
+          ))
+        )}
+        {showAdd ? (
+          <form onSubmit={handleAdd} style={{ display: 'flex', gap: '8px', padding: '12px 0', flexWrap: 'wrap' }}>
+            <input placeholder="School Name (e.g. University of Ibadan)" value={name} onChange={e => setName(e.target.value)} required style={{ flex: 2, padding: '8px 12px', borderRadius: '8px', border: '1px solid #ccc' }} />
+            <input placeholder="Code (e.g. UI)" value={code} onChange={e => setCode(e.target.value.toUpperCase())} required style={{ flex: 1, padding: '8px 12px', borderRadius: '8px', border: '1px solid #ccc' }} />
+            <button type="submit" className="primary" disabled={busy}>{busy ? 'Adding…' : 'Save'}</button>
+            <button type="button" onClick={() => setShowAdd(false)}>Cancel</button>
+          </form>
+        ) : (
+          <button className="primary" onClick={() => setShowAdd(true)}><Plus />Add school</button>
+        )}
+      </div>
+    </Page>
+  );
+}
+
+function Approvals({notify}:{notify:(s:string)=>void}){
+  const [list, setList] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchMerchants = () => {
+    setLoading(true);
+    api<any>('/SchoolAdmin/merchants', { method: 'GET' })
+      .then((res: any) => {
+        const payload = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : [];
+        setList(payload);
+      })
+      .catch(() => setList([]))
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchMerchants();
+  }, []);
+
+  const handleApprove = async (id: string) => {
+    try {
+      await api(`/SchoolAdmin/ApproveMerchant?merchantId=${id}`, { method: 'POST' });
+      notify('Merchant approved successfully');
+      fetchMerchants();
+    } catch (err: any) {
+      notify(err?.message || 'Failed to approve merchant');
+    }
+  };
+
+  const handleReject = async (id: string) => {
+    try {
+      await api(`/SchoolAdmin/RejectMerchant?merchantId=${id}`, { method: 'POST' });
+      notify('Merchant rejected');
+      fetchMerchants();
+    } catch (err: any) {
+      notify(err?.message || 'Failed to reject merchant');
+    }
+  };
+
+  return (
+    <Page>
+      <Head over="SCHOOL ADMIN" title="Merchant approvals" />
+      <div className="panel list">
+        {loading ? (
+          <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}><i className="spinner" /> Loading merchants…</div>
+        ) : list.length === 0 ? (
+          <div style={{ padding: '20px', textAlign: 'center', color: '#888' }}>No merchants found.</div>
+        ) : (
+          list.map((m) => {
+            const mId = m.id || m.merchantId;
+            return (
+              <div key={mId || m.email}>
+                <i><Store /></i>
+                <span><b>{m.businessName}</b><small>{m.email} • {m.shopLocation || 'Campus Store'}</small></span>
+                <em>{m.isApproved ? 'Approved' : 'Pending'}</em>
+                {!m.isApproved ? (
+                  <button className="primary" onClick={() => handleApprove(mId)}>Approve</button>
+                ) : (
+                  <button onClick={() => handleReject(mId)}>Reject</button>
+                )}
+              </div>
+            );
+          })
+        )}
+      </div>
+    </Page>
+  );
+}
 
 function ProfilePage({ user, save, notify }: { user: User; save: (u: User | null) => void; notify: (s: string, bad?: boolean) => void }) {
   const [tab, setTab] = useState<'details' | 'bank' | 'security'>('details');

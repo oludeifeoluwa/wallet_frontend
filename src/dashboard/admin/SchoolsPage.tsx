@@ -5,10 +5,10 @@ import {
   RefreshCw,
   Edit2,
   Trash2,
-  ExternalLink,
-  Users,
   Copy,
   Check,
+  Users,
+  ShieldCheck,
 } from 'lucide-react';
 import { schoolApi } from '../api/schoolApi';
 import { SchoolDto, SchoolRequestDto } from '../types/school';
@@ -17,34 +17,54 @@ import { Modal } from '../components/Modal';
 import { DetailDrawer } from '../components/DetailDrawer';
 import { ErrorState } from '../components/ErrorState';
 
+function initials(name: string) {
+  return name
+    .split(' ')
+    .slice(0, 2)
+    .map((w) => w[0] || '')
+    .join('')
+    .toUpperCase();
+}
+
+const COLORS = [
+  'bg-emerald-100 text-emerald-800',
+  'bg-blue-100 text-blue-800',
+  'bg-amber-100 text-amber-800',
+  'bg-purple-100 text-purple-800',
+  'bg-rose-100 text-rose-800',
+  'bg-cyan-100 text-cyan-800',
+];
+
+function colorFor(name: string) {
+  const idx = name.charCodeAt(0) % COLORS.length;
+  return COLORS[idx];
+}
+
 export const SchoolsPage: React.FC = () => {
   const [schools, setSchools] = useState<SchoolDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Add School Modal State
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [newSchoolName, setNewSchoolName] = useState('');
   const [newSchoolCode, setNewSchoolCode] = useState('');
   const [addLoading, setAddLoading] = useState(false);
   const [addError, setAddError] = useState<string | null>(null);
 
-  // Edit School Modal State
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedSchool, setSelectedSchool] = useState<SchoolDto | null>(null);
   const [editSchoolName, setEditSchoolName] = useState('');
   const [editLoading, setEditLoading] = useState(false);
   const [editError, setEditError] = useState<string | null>(null);
 
-  // Delete School Modal State
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
-  // Detail Drawer State
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerSchool, setDrawerSchool] = useState<SchoolDto | null>(null);
   const [copiedCode, setCopiedCode] = useState(false);
+  const [search, setSearch] = useState('');
 
   const loadSchools = useCallback(async () => {
     setLoading(true);
@@ -115,9 +135,7 @@ export const SchoolsPage: React.FC = () => {
       await schoolApi.deleteSchool(schoolId);
       setDeleteModalOpen(false);
       setSelectedSchool(null);
-      if (drawerSchool?.id === schoolId) {
-        setDrawerOpen(false);
-      }
+      if (drawerSchool?.id === schoolId) setDrawerOpen(false);
       await loadSchools();
     } catch (err: any) {
       setDeleteError(err?.message || 'Failed to delete school from the backend.');
@@ -132,26 +150,39 @@ export const SchoolsPage: React.FC = () => {
     setTimeout(() => setCopiedCode(false), 2000);
   };
 
+  const filtered = schools.filter(
+    (s) =>
+      !search ||
+      s.name.toLowerCase().includes(search.toLowerCase()) ||
+      s.code.toLowerCase().includes(search.toLowerCase())
+  );
+
   const columns: ColumnDef<SchoolDto>[] = [
     {
       key: 'name',
-      header: 'Institution Name',
+      header: 'SCHOOL NAME',
       sortable: true,
-      render: (row) => (
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-xs shrink-0">
-            <Building2 className="w-4 h-4" />
+      render: (row) => {
+        const init = initials(row.name);
+        const color = colorFor(row.name);
+        return (
+          <div className="flex items-center gap-3">
+            <div
+              className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold text-sm shrink-0 ${color}`}
+            >
+              {init}
+            </div>
+            <div>
+              <p className="font-semibold text-slate-900 text-sm">{row.name}</p>
+              <p className="text-[11px] text-slate-400 font-mono">{row.code}</p>
+            </div>
           </div>
-          <div>
-            <p className="font-bold text-slate-900">{row.name}</p>
-            <p className="text-[11px] text-slate-400 font-mono">ID: {row.id || row.schoolId || 'N/A'}</p>
-          </div>
-        </div>
-      ),
+        );
+      },
     },
     {
       key: 'code',
-      header: 'School Code',
+      header: 'SCHOOL CODE',
       sortable: true,
       render: (row) => (
         <span className="inline-flex items-center gap-1 font-mono font-bold text-xs px-2.5 py-1 bg-slate-100 text-slate-800 rounded-md border border-slate-200">
@@ -160,8 +191,18 @@ export const SchoolsPage: React.FC = () => {
       ),
     },
     {
+      key: 'status',
+      header: 'STATUS',
+      render: () => (
+        <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
+          Active
+        </span>
+      ),
+    },
+    {
       key: 'actions',
-      header: 'Actions',
+      header: 'ACTIONS',
       align: 'right',
       render: (row) => (
         <div className="flex items-center justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
@@ -172,7 +213,7 @@ export const SchoolsPage: React.FC = () => {
               setEditError(null);
               setEditModalOpen(true);
             }}
-            className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+            className="p-1.5 text-slate-400 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
             title="Edit School"
           >
             <Edit2 className="w-3.5 h-3.5" />
@@ -183,7 +224,7 @@ export const SchoolsPage: React.FC = () => {
               setDeleteError(null);
               setDeleteModalOpen(true);
             }}
-            className="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+            className="p-1.5 text-rose-400 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
             title="Delete School"
           >
             <Trash2 className="w-3.5 h-3.5" />
@@ -199,13 +240,12 @@ export const SchoolsPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold font-heading text-slate-900 tracking-tight">
-            Partner Institutions
+            Schools Management
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            Manage university onboardings, verification codes, and campus domains
+            Manage institutional partners, administrative accounts, and student enrollment metrics.
           </p>
         </div>
-
         <div className="flex items-center gap-2">
           <button
             onClick={loadSchools}
@@ -220,11 +260,46 @@ export const SchoolsPage: React.FC = () => {
               setAddError(null);
               setAddModalOpen(true);
             }}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-[#102b29] bg-[#dfffbb] hover:bg-[#ebffd3] rounded-xl transition-colors shadow-2xs font-heading cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-[#1b5e52] hover:bg-[#144a3f] rounded-xl transition-colors shadow-xs font-heading cursor-pointer"
           >
-            <Plus className="w-3.5 h-3.5" />
-            <span>Register Institution</span>
+            <Building2 className="w-3.5 h-3.5" />
+            <span>Create School</span>
           </button>
+        </div>
+      </div>
+
+      {/* KPI Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex items-center gap-4">
+          <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+            <Building2 className="w-5 h-5" />
+          </div>
+          <div>
+            <p className="text-[11px] text-slate-500 font-semibold uppercase tracking-wide">Total Schools</p>
+            <p className="text-2xl font-extrabold text-slate-900 leading-tight">
+              {loading ? '—' : schools.length.toLocaleString()}
+            </p>
+          </div>
+        </div>
+        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex items-center gap-4">
+          <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center shrink-0">
+            <Users className="w-5 h-5" />
+          </div>
+          <div>
+            <p className="text-[11px] text-slate-500 font-semibold uppercase tracking-wide">Active Students</p>
+            <p className="text-2xl font-extrabold text-slate-900 leading-tight">—</p>
+          </div>
+        </div>
+        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex items-center gap-4">
+          <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
+            <ShieldCheck className="w-5 h-5" />
+          </div>
+          <div>
+            <p className="text-[11px] text-slate-500 font-semibold uppercase tracking-wide">Compliance Rate</p>
+            <p className="text-2xl font-extrabold text-slate-900 leading-tight">
+              {loading ? '—' : schools.length > 0 ? '100%' : '—'}
+            </p>
+          </div>
         </div>
       </div>
 
@@ -237,20 +312,36 @@ export const SchoolsPage: React.FC = () => {
         />
       )}
 
-      {/* Main Table */}
-      <DataTable
-        columns={columns}
-        data={schools}
-        loading={loading}
-        searchPlaceholder="Search by school name or code..."
-        searchKey={(s) => `${s.name} ${s.code}`}
-        emptyTitle="No Partner Schools Registered"
-        emptyDescription="Click 'Register Institution' to onboard your first campus university."
-        onRowClick={(row) => {
-          setDrawerSchool(row);
-          setDrawerOpen(true);
-        }}
-      />
+      {/* Search + Table */}
+      <div className="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden">
+        <div className="p-4 border-b border-slate-100 flex items-center gap-3">
+          <input
+            type="text"
+            placeholder="Filter by name or code..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="flex-1 px-3 py-2 text-sm border border-slate-200 rounded-xl outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+          />
+        </div>
+        <DataTable
+          columns={columns}
+          data={filtered}
+          loading={loading}
+          searchPlaceholder=""
+          searchKey={(s) => `${s.name} ${s.code}`}
+          emptyTitle="No Partner Schools Registered"
+          emptyDescription="Click 'Create School' to onboard your first campus university."
+          onRowClick={(row) => {
+            setDrawerSchool(row);
+            setDrawerOpen(true);
+          }}
+        />
+        {!loading && (
+          <div className="px-4 py-3 border-t border-slate-100 text-xs text-slate-400">
+            Showing 1–{filtered.length} of {filtered.length} schools
+          </div>
+        )}
+      </div>
 
       {/* Add School Modal */}
       <Modal
@@ -399,7 +490,6 @@ export const SchoolsPage: React.FC = () => {
                   </button>
                 </div>
               </div>
-
               <div className="flex items-center justify-between">
                 <span className="text-slate-500">Database ID</span>
                 <span className="font-mono text-slate-700 text-[11px]">
@@ -407,13 +497,13 @@ export const SchoolsPage: React.FC = () => {
                 </span>
               </div>
             </div>
-
             <div className="space-y-2">
               <h4 className="font-bold font-heading text-slate-800 text-sm">
                 Institution Administration
               </h4>
               <p className="text-slate-500 leading-relaxed">
-                Staff members with the <strong>{drawerSchool.code}</strong> code can log into the CampusPay School Portal to manage enrolled students and verify campus merchants.
+                Staff members with the <strong>{drawerSchool.code}</strong> code can log into the
+                CampusPay School Portal to manage enrolled students and verify campus merchants.
               </p>
             </div>
           </div>

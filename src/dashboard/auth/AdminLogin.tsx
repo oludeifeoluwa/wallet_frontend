@@ -154,16 +154,16 @@ export const AdminLogin: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-2 py-3 px-4 bg-[#dfffbb] hover:bg-[#ebffd3] text-[#102b29] font-bold text-sm rounded-xl shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+              className="w-full mt-2 py-3.5 px-6 bg-[#dfffbb] hover:bg-[#ebffd3] text-[#102b29] font-bold text-sm rounded-xl shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
             >
               {loading ? (
                 <>
                   <div className="w-4 h-4 border-2 border-[#102b29] border-t-transparent rounded-full animate-spin" />
-                  <span>Verifying Credentials...</span>
+                  <span className="px-2">Verifying Credentials...</span>
                 </>
               ) : (
                 <>
-                  <span>Sign In as Platform Admin</span>
+                  <span className="px-4">Sign In as Platform Admin</span>
                   <ArrowRight className="w-4 h-4" />
                 </>
               )}
